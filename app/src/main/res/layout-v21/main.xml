@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mianRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"
+    tools:context=".Main" >
+    <!--<ImageView
+        android:id="@+id/main_bg"
+	    android:layout_width="match_parent"
+    	android:layout_height="match_parent"
+    	android:scaleType="fitXY"
+    	android:contentDescription="@string/action_settings"
+        />-->
+    <!-- 快捷方式 -->
+    <GridView 
+	    android:id="@+id/shortcut"
+	    android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:gravity="center"
+    	android:spacing="10dp"
+    	android:animationDuration="1"
+    	android:numColumns="4"
+    	android:listSelector="@color/none"
+    	android:stretchMode="columnWidth"
+    	android:layout_alignParentBottom="true"
+	    />
+
+	<!--dot列表-->
+	<LinearLayout
+		android:id="@+id/windowsDots"
+		android:layout_above="@id/shortcut"
+		android:orientation="horizontal"
+		android:gravity="center_horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"/>
+
+    <!-- 主要应用 -->
+	<!--<android.support.v4.view.ViewPager
+		android:id="@+id/parentBox"
+		android:layout_alignParentTop="true"
+		android:layout_above="@id/windowsDots"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"/>-->
+	<com.example.view.MyParent
+		android:id="@+id/parentBox"
+		android:layout_alignParentTop="true"
+		android:layout_above="@id/windowsDots"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"/>
+	<RelativeLayout
+		android:visibility="invisible"
+		android:clickable="false"
+		android:focusable="false"
+		android:id="@+id/topMask"
+		android:layout_alignParentTop="true"
+		android:layout_above="@id/shortcut"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+		<include
+			android:id="@+id/longClickBox"
+			layout="@layout/long_cilck_items"/>
+	</RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:background="@color/colorPrimary"
+    android:layout_height="match_parent">
+    <View
+        android:id="@+id/navigator"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+    <!--头部-->
+    <RelativeLayout
+        android:layout_below="@id/navigator"
+        android:background="@color/colorPrimary"
+        android:id="@+id/titleBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/back"
+            style="@style/text"
+            android:padding="@dimen/appIconReplace_titlePadding"
+            android:text="@string/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:textColor="@color/white"
+            android:textSize="@dimen/textSize_big"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/title"
+            android:gravity="center"
+            android:text="@string/replaceIcon"
+            android:padding="@dimen/appIconReplace_titlePadding"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/sure"
+            style="@style/text"
+            android:padding="@dimen/appIconReplace_titlePadding"
+            android:layout_alignParentEnd="true"
+            android:text="@string/sure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:background="@color/white"
+        android:layout_below="@id/titleBar"
+        android:id="@+id/selectBox"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/localIcon"
+            style="@style/text.blackText"
+            android:text="@string/originIcon"
+            android:background="@drawable/view_only_right_bottom_border_press"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/replacedIcon"
+            style="@style/text.blackText"
+            android:text="@string/replacedIcon"
+            android:background="@drawable/view_only_right_border"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/localIconFile"
+            style="@style/text.blackText"
+            android:text="@string/localIconFile"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+
+    <GridView
+        android:clickable="true"
+        android:focusable="true"
+        android:listSelector="@drawable/view_only_border"
+        android:background="@color/white"
+        android:layout_below="@id/selectBox"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/replaceIconList"
+        android:numColumns="5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:background="@color/white"
+        android:clickable="true"
+        android:focusable="true"
+        android:id="@+id/iconShowParent"
+        android:layout_below="@id/selectBox"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:padding="6dp"
+            android:background="@drawable/border_1px"
+            android:id="@+id/iconShow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <GridView
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@color/white"
+        android:layout_below="@id/selectBox"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/originIconList"
+        android:numColumns="5"
+        android:gravity="center"
+        android:spacing="14dp"
+        android:animationDuration="1"
+        android:listSelector="@drawable/view_only_border"
+        android:stretchMode="columnWidth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</RelativeLayout>

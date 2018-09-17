@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="textSize_min">8dp</dimen>
+    <dimen name="textSize_small">12dp</dimen>
+    <dimen name="textSize_normal">16dp</dimen>
+    <dimen name="textSize_big">18dp</dimen>
+
+    <dimen name="appItemWidth">60dp</dimen>
+    <dimen name="appItemHeight">70dp</dimen>
+
+    <dimen name="longClickItemSize">40dp</dimen>
+    <dimen name="longClickItemPadding">4dp</dimen>
+
+    <dimen name="windowsDotSize">20dp</dimen>
+    <dimen name="windowsDotMargin">4dp</dimen>
+    <dimen name="windowsDotFocusPadding">1dp</dimen>
+    <dimen name="appListIconSize">40dp</dimen>
+    <dimen name="appSelectListHeight_third">420dp</dimen>
+    <dimen name="appSelectListHeight_sys">400dp</dimen>
+    <dimen name="appSelectButtonPaddingTop_Bottom">12dp</dimen>
+
+
+    <dimen name="appIconReplace_titlePadding">12dp</dimen>
+
+
+    <dimen name="settingTitlePaddingTopBottom">14dp</dimen>
+</resources>

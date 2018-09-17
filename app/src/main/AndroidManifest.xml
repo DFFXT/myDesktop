@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.desktop" >
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <application
+        android:name="com.example.config.MainApplication"
+        android:fullBackupContent="true"
+        android:persistent="true"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppBaseTheme">
+        <activity
+            android:theme="@android:style/Theme.Wallpaper.NoTitleBar"
+            android:name="com.example.desktop.Main"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME"/>
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.desktop.LookingClickData" />
+
+        <activity android:name=".AppSelectAdd"/>
+        <activity android:name=".IconReplace"/>
+        <activity android:name=".Setting" />
+
+
+        <service android:name="com.example.background.BackgroundService" />
+        <receiver android:name="com.example.config.ShutdownService">
+            <intent-filter >
+                <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
+                <category android:name="android.intent.category.HOME"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.example.background.AppChangeReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED"/>
+                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
+                <data android:scheme="package"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.android.launcher.action.INSTALL_SHORTCUT"/>
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

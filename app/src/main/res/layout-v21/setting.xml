@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <View
+        android:id="@+id/navigator"
+        android:background="@color/colorPrimaryDark"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
+    <TextView
+        android:id="@+id/title"
+        style="@style/text.big"
+        android:background="@color/colorPrimaryDark"
+        android:text="@string/settingTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <ScrollView
+        android:id="@+id/itemBox"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/clear"
+                style="@style/text.blackText.start"
+                android:text="@string/setting_clear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/recovery"
+                style="@style/text.blackText.start"
+                android:text="@string/setting_clearSetting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/showText"
+                    style="@style/text.blackText.start"
+                    android:text="@string/setting_showText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <CheckBox
+                    android:id="@+id/showTextCheckBox"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/textColorSelect"
+                    style="@style/text.blackText.start"
+                    android:text="@string/setting_textColor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <View
+                    android:layout_marginEnd="4dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:background="@color/colorPrimaryDark"
+                    android:id="@+id/textColorShow"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"/>
+
+            </RelativeLayout>
+
+
+            <Button
+                android:id="@+id/addTip"
+                style="@style/text.blackText.start"
+                android:text="@string/setting_addTip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/recodeClick"
+                    style="@style/text.blackText.start"
+                    android:text="@string/setting_recordClick"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <CheckBox
+                    android:id="@+id/recordClickCheckBox"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+
+
+            <Button
+                android:id="@+id/lookClickData"
+                style="@style/text.blackText.start"
+                android:text="@string/setting_lookingClickData"
+                android:background="@drawable/press_transparent_light"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <View
+                android:layout_marginTop="20dp"
+                android:background="@android:color/black"
+                android:layout_width="match_parent"
+                android:layout_height="1dp" />
+            <Button
+
+                android:id="@+id/version"
+                style="@style/text.blackText.start"
+                android:text="@string/setting_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/update"
+                style="@style/text.blackText.start"
+                android:text="@string/setting_update"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+    </ScrollView>
+
+</LinearLayout>

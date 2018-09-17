@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="@dimen/windowsDotFocusPadding"
+    android:id="@+id/dot1"
+    android:layout_marginStart="@dimen/windowsDotMargin"
+    android:layout_marginEnd="@dimen/windowsDotMargin"
+    android:src="@drawable/dot"
+    android:layout_width="@dimen/windowsDotSize"
+    android:layout_height="@dimen/windowsDotSize">
+
+</ImageView>

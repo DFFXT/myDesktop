@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:left="-3dp" android:top="-3dp" android:right="-3dp">
+        <shape>
+            <stroke android:dashGap="3dp" android:dashWidth="4dp" android:width="1px" android:color="@color/gray"/>
+        </shape>
+    </item>
+    <item>
+        <selector android:enterFadeDuration="400" android:exitFadeDuration="400">
+            <item android:state_pressed="true" android:drawable="@color/lightBlue"/>
+            <item android:state_pressed="false" android:drawable="@android:color/transparent"/>
+        </selector>
+    </item>
+</layer-list>

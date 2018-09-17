@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="none">#00000000</color>
+    <color name="white">#ffffffff</color>
+    <color name="gray">#55555555</color>
+    <color name="blue">#5555ff22</color>
+
+    <color name="lightBlue">#93bff1</color>
+    <color name="transparentWhite">#77ffffff</color>
+
+
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+</resources>
