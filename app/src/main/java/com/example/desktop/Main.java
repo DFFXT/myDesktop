@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.IntDef;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -26,6 +27,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.FrameLayout;
@@ -86,6 +88,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 
 	private ServiceConnection connection;
 
+	private boolean switchPaged=false;
 
 	public void setNavigation(int h){
 
@@ -165,6 +168,99 @@ public class Main extends MyActivity implements View.OnClickListener{
 		initWindow();
 	}
 
+
+	private void switchPage(float distance){
+		if(appList.getMaxPage()==1)return;
+		int page=appList.getPage();
+		FrameLayout layout=wList.get(page);
+		float left=layout.getX()+distance;
+		float topAlpha=(width-Math.abs(left)+0.0f)/width;
+		if(Math.abs(left)>100){
+			int nextPage;
+			if(left<0){
+				nextPage=page+1;
+				if(nextPage>wList.size()-1)nextPage=0;
+
+			}else{
+				nextPage=page-1;
+				if(nextPage<0)nextPage=wList.size()-1;
+			}
+			FrameLayout next=wList.get(nextPage);
+			next.setVisibility(View.VISIBLE);
+			next.setAlpha(1-topAlpha);
+		}else {
+			int pre=page-1;
+			int next=page+1;
+			if(pre<0)pre=wList.size()-1;
+			if(next>wList.size()-1)next=0;
+			wList.get(pre).setVisibility(View.GONE);
+			wList.get(next).setVisibility(View.GONE);
+
+		}
+		layout.setAlpha(topAlpha);
+		layout.setX(left);
+	}
+
+	/**
+	 * 换页动画
+	 * @param critical 临界值，超过临界值就进行换页
+	 */
+	private void endSwitch(int critical){
+		int page=appList.getPage();
+		FrameLayout layout=wList.get(page);
+		FrameLayout next=null;
+		int nextPage;
+
+		float left=layout.getX();
+		int to=0;
+		if(left<0) {
+			if(left<=-critical) {
+				to = -width;
+			}
+			nextPage=page+1;
+			if(nextPage>=wList.size())nextPage=0;
+		}
+		else if(left>0) {
+			if(left>=critical){
+				to = width;
+			}
+			nextPage=page-1;
+			if(nextPage<0)nextPage=wList.size()-1;
+		}
+		else return;
+		endSwitchAnimator(page,nextPage,left,to);
+	}
+	private void endSwitchAnimator(int page,int nextPage,float from,float to){
+		FrameLayout layout=wList.get(page);
+		FrameLayout next=wList.get(nextPage);
+		ValueAnimator animator=ValueAnimator.ofFloat(from,to);
+		animator.setInterpolator(new AccelerateDecelerateInterpolator());
+		animator.setDuration(300);
+		next.setVisibility(View.VISIBLE);
+		if(to!=0) {
+			resumeDot(wDList.get(appList.getPage()));
+			appList.setPage(nextPage);
+			selectDot(wDList.get(nextPage));
+		}
+		animator.addUpdateListener((animation -> {
+			float val=(float) animation.getAnimatedValue();
+			layout.setX(val);
+			float topAlpha=(width-Math.abs(val))/width;
+			layout.setAlpha(topAlpha);
+			next.setAlpha(1-topAlpha);
+			if(val== to){
+				if(to ==0){//**回弹
+					next.setVisibility(View.GONE);
+				}else{
+					layout.setX(0);
+					layout.setVisibility(View.GONE);
+					next.setVisibility(View.VISIBLE);
+				}
+			}
+		}));
+		animator.start();
+	}
+
 	/**
 	 * 设置基本的事件
 	 */
@@ -182,13 +278,38 @@ public class Main extends MyActivity implements View.OnClickListener{
 
 
 		parent.setOnTouchListener(new TouchDirection() {
+			private boolean switchPage=false;
+			private float lastDistance;
 			@Override
-			public void touchDirection(int state, float distance) {
+			public void touchDirection(float distance) {
 				if(switchAction||deleteAction)return;
-				switchPage(state);
+				switchPage=true;
+				switchPaged=true;
+				lastDistance=Math.max(Math.abs(lastDistance),Math.abs(distance));
+				switchPage(distance);
 				releaseEvent(0);
 			}
 
+			@Override
+			public void onTouch(MotionEvent e) {
+				switch (e.getAction()){
+					case MotionEvent.ACTION_DOWN:{
+						switchPage=false;
+						switchPaged=false;
+					}break;
+					case MotionEvent.ACTION_UP:{
+						if(switchPage){
+							if(Math.abs(lastDistance)>ShortCut.screenWidth()/36){//**可以判定为快速滑动
+								endSwitch(ShortCut.screenWidth()/30);
+							}else {
+								endSwitch(width/3);
+							}
+						}
+						switchPage=false;
+						lastDistance=0;
+					}break;
+				}
+			}
 
 			/**
 			 * 点击事件
@@ -197,20 +318,10 @@ public class Main extends MyActivity implements View.OnClickListener{
 			 */
 
 			public void onClick(float x,float y){
-				if(touchObj.info==null) return;
-				if(touchObj.info.getIntent()!=null){
-					try {
-						startActivity(Intent.parseUri(touchObj.info.getIntent(),Intent.URI_INTENT_SCHEME));
-					} catch (URISyntaxException e) {
-						e.printStackTrace();
-					}
-				}else {
-					addClickAmount(touchObj.info.getPkgName());
-					openActivity(touchObj.info.getPkgName(),touchObj.info.getName());
-				}
 
-				releaseEvent(1);
 			}
+
+
 
 			/**
 			 * 长点击,800mills未移动
@@ -258,8 +369,12 @@ public class Main extends MyActivity implements View.OnClickListener{
 	 * 清空事件
 	 */
 	private void releaseEvent(int id){
-		hiddenBorder(touchObj.downView);
-		touchObj.objType=-1;
+		if(touchObj.objType==TouchObj.WIDGET){
+			touchObj.downView.setBackgroundResource(R.drawable.view_only_border_dash);
+		}else{
+			hiddenBorder(touchObj.downView);
+		}
+		touchObj.objType=TouchObj.NONE;
 		touchObj.info=null;
 		touchObj.widget=null;
 		touchObj.downView=null;
@@ -431,14 +546,17 @@ public class Main extends MyActivity implements View.OnClickListener{
 		final AppWidgetParent box=new AppWidgetParent(this);
 		FrameLayout.LayoutParams params_box=new FrameLayout.LayoutParams(
 				ViewGroup.LayoutParams.WRAP_CONTENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT
+				ShortCut.px(info.minHeight)+40
 		);
 		params_box.gravity=Gravity.TOP;
 		params_box.setMargins(widget.getX(),widget.getY(),0,0);
 		box.setLayoutParams(params_box);
 		box.setPadding(20,20,20,20);
 		box.addView(view);
-		box.setOnTouchListener((v, event) -> {
+		box.setBackgroundResource(R.drawable.view_only_border_dash);
+		box.setScaleX(widget.getScale());
+		box.setScaleY(widget.getScale());
+		box.setOnLongClickListener((v)->{
 			touchObj.downView=box;
 			touchObj.widget=widget;
 			touchObj.objType=TouchObj.WIDGET;
@@ -587,7 +705,33 @@ public class Main extends MyActivity implements View.OnClickListener{
 
 
 
-		v.setOnTouchListener((v1, event) -> {
+		v.setOnClickListener((view)->{
+			if(switchPaged)return;
+			if(app.getIntent()!=null){
+				try {
+					startActivity(Intent.parseUri(touchObj.info.getIntent(),Intent.URI_INTENT_SCHEME));
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+			}else {
+				try {
+					addClickAmount(app.getPkgName());
+					openActivity(app.getPkgName(),app.getName());
+				}catch (Exception e){
+					e.printStackTrace();
+				}
+
+			}
+			releaseEvent(0);
+		});
+		v.setOnLongClickListener((view)->{
+			touchObj.objType=TouchObj.APP;
+			touchObj.downView= view;
+			touchObj.info=app;
+			return true;
+		});
+
+		/*v.setOnTouchListener((v1, event) -> {
             if(event.getAction()==MotionEvent.ACTION_DOWN){
                 if(touchObj.info!=null) return false;
                 touchObj.objType=TouchObj.APP;
@@ -595,9 +739,10 @@ public class Main extends MyActivity implements View.OnClickListener{
                 touchObj.info=app;
             }
             return false;
-        });
+        });*/
 		v.setScaleX(app.getScale());
 		v.setScaleY(app.getScale());
+
 		return v;
 	}
 
@@ -626,9 +771,11 @@ public class Main extends MyActivity implements View.OnClickListener{
 			for(int i=0;i<wDList.size();i++){
 				if(v.equals(wDList.get(i))&&page!=i){
 					if(i<page)
-						switchPage(TouchDirection.TOUCH_RIGHT,i,600);
+						endSwitchAnimator(appList.getPage(),i,0,width);
+						//switchPage(TouchDirection.TOUCH_RIGHT,i,600);
 					else
-						switchPage(TouchDirection.TOUCH_LEFT,i,600);
+						endSwitchAnimator(appList.getPage(),i,0,-width);
+						//switchPage(TouchDirection.TOUCH_LEFT,i,600);
 				}
 			}
 		});
@@ -651,7 +798,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 	 * @param dot dot
 	 */
 	private void resumeDot(ImageView dot){
-		int px=px(2);
+		int px=ShortCut.px(2);
 		dot.setPadding(px,px,px,px);
 		dot.setImageResource(R.drawable.dot);
 	}
@@ -713,70 +860,8 @@ public class Main extends MyActivity implements View.OnClickListener{
 	}
 
 
-	/**
-	 * dp转px
-	 * @param dp dp
-	 * @return px
-	 */
-	private int px(int dp){
-		return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dp,getResources().getDisplayMetrics());
-	}
 
-	private void switchPage(final int state){
-		int toPage,startPage=appList.getPage();
-		if(state== TouchDirection.TOUCH_LEFT){
-			Log.i("spage","left");
-			if(startPage==appList.getMaxPage()){
-				toPage=0;
-			}else{
-				toPage=++startPage;
-			}
-		}else{
-			if(startPage==0){
-				toPage=appList.getMaxPage();
-			}else{
-				toPage=--startPage;
-			}
-		}
-		switchPage(state,toPage,600);
-	}
 	private boolean switchAction=false;
-	/**
-	 * 动画切换
-	 * @param state 方向
-	 * @param showPage 需要显示的页面
-	 */
-	private void switchPage(final int state, int showPage,int during){
-		resumeDot(wDList.get(appList.getPage()));
-		//**thisPage需要显示的page，thatPage，需要隐藏的page
-		final FrameLayout thisPage=wList.get(showPage),thatPage=wList.get(appList.getPage());
-
-		selectDot(wDList.get(showPage));
-		appList.setPage(showPage);
-		thisPage.setVisibility(View.VISIBLE);
-		ValueAnimator valueAnimator=ValueAnimator.ofInt(50,width);
-		valueAnimator.setDuration(during);
-		valueAnimator.addUpdateListener(animation -> {
-            switchAction=true;
-            int val= (int) animation.getAnimatedValue();
-            if(state==TouchDirection.TOUCH_RIGHT){
-                thisPage.setAlpha((float)val/width);
-                thatPage.setAlpha(1-(float) val/width);
-                thatPage.setLeft(val);
-            }else{
-                thisPage.setAlpha((float)val/width);
-                thatPage.setAlpha(1-(float)val/width);
-                thatPage.setLeft(-val);
-            }
-            //**动画结束
-            if(val==width){
-                thatPage.setVisibility(View.GONE);
-                thatPage.setLeft(0);
-                switchAction=false;
-            }
-        });
-		valueAnimator.start();
-	}
 	public void setAdapter(){//--设置适配器
 		GridViewAdapter adapterShort = new GridViewAdapter(Main.this, R.layout.desktop_list,appList.getShortCutList(), pManager);
 		shortcut.setAdapter(adapterShort);
@@ -934,11 +1019,10 @@ public class Main extends MyActivity implements View.OnClickListener{
 			}
 			wList.get(appList.getPage()).removeView(touchObj.downView);//**从旧的窗口移除app
 			appList.removeApp(touchObj.info.getPkgName());//**从存储列表中移除app
-			left=-20;//**app在新页面的新位置
-			touchObj.info.setX(left);
-			touchObj.info.setY(bottom);
-			touchObj.downView=createAppView(touchObj.info,touchObj.info.getPage());//**创建新的app View
-			switchPage(TouchDirection.TOUCH_RIGHT);//**换页面
+			//left=-20;//**app在新页面的新位置
+			int nextPage=appList.getPage()-1;
+			if(nextPage<0) nextPage=appList.getMaxPage();
+			endSwitchAnimator(appList.getPage(),nextPage,0,width);//**换页面
 			wList.get(appList.getPage()).addView(touchObj.downView);//**在新页面显示App
 			touchObj.info.setPage(appList.getPage());//**重新设置app所属页面
 			appList.addApp(touchObj.info);//**更新存储列表
@@ -953,11 +1037,10 @@ public class Main extends MyActivity implements View.OnClickListener{
 				return;
 			}
 			wList.get(appList.getPage()).removeView(touchObj.downView);
-			left=width-itemW+20;
-			touchObj.info.setX(left);
-			touchObj.info.setY(bottom);
-			touchObj.downView=createAppView(touchObj.info,touchObj.info.getPage());
-			switchPage(TouchDirection.TOUCH_LEFT);
+			//left=width-itemW+20;
+			int nextPage=appList.getPage()+1;
+			if(nextPage>appList.getMaxPage()) nextPage=0;
+			endSwitchAnimator(appList.getPage(),nextPage,0,-width);
 			touchObj.info.setPage(appList.getPage());
 			wList.get(appList.getPage()).addView(touchObj.downView);
 			appList.addApp(touchObj.info);//**更新存储列表
@@ -1203,11 +1286,14 @@ public class Main extends MyActivity implements View.OnClickListener{
 
 	private static class TouchObj{
 		private View downView;
-		private int objType=-1;
+		private @TYPE int objType=NONE;
 		private DesktopAppInfo info;
 		private AppWidget widget;
-		private static int APP=0;
-		private static int WIDGET=1;
+		private final static int APP=0;
+		private final static int WIDGET=1;
+		private final static int NONE=-1;
+		@IntDef({APP,WIDGET,NONE})
+		@interface TYPE{}
 	}
 }
 
