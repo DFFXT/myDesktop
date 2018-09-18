@@ -13,6 +13,7 @@ public class AppWidget  implements Serializable{
     private int page;
     //**位置
     private int x,y;
+    private float scale=1;
     public AppWidget(int id,int page,int x,int y){
         this.id=id;
         this.page=page;
@@ -46,5 +47,13 @@ public class AppWidget  implements Serializable{
 
     public void setPage(int page) {
         this.page = page;
+    }
+
+    public float getScale() {
+        return scale;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
     }
 }

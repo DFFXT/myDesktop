@@ -17,11 +17,6 @@ import java.util.concurrent.TimeUnit;
  */
 
 public abstract class TouchDirection implements View.OnTouchListener{
-    public final static int TOUCH_LEFT=1;
-    public final static int TOUCH_RIGHT=2;
-    @IntDef(value = {TOUCH_LEFT,TOUCH_RIGHT})
-    @Retention(RetentionPolicy.SOURCE)
-    @interface diretion{}
     private int id=0;//***点击的id
     private float preX,preY;//**点击位置
     private float movePreX,movePreY;
@@ -59,14 +54,7 @@ public abstract class TouchDirection implements View.OnTouchListener{
             return false;
         }else if(event.getAction()==MotionEvent.ACTION_MOVE){
             if(!longClicked&&Math.abs(preX-event.getX())>Math.abs(preY-event.getY())*0.5){//左右滑动
-                @diretion int state;
-                if(preX-event.getX()>50){//手指向右滑动
-                    state =TOUCH_LEFT;
-                    touchDirection(state,movePreX-event.getX());
-                }else if(preX-event.getX()<-50){//right滑动
-                    state =TOUCH_RIGHT;
-                    touchDirection(state,event.getX()-movePreX);
-                }
+                touchDirection(event.getX()-movePreX);
                 moved=true;
             }
             float abs=Math.abs(preX-event.getX())+Math.abs(preY-event.getY());
@@ -101,10 +89,9 @@ public abstract class TouchDirection implements View.OnTouchListener{
 
     /**
      * 水平滑动
-     * @param state 方向
      * @param distance 滑动距离
      */
-    public abstract void touchDirection(@diretion int state,float distance);
+    public abstract void touchDirection(float distance);
 
     /**
      * 点击事件

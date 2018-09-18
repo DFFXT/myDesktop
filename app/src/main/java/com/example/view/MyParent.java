@@ -6,12 +6,13 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 /**
  * 自定义parent，进行事件的拦截
  */
-public class MyParent extends RelativeLayout {
+public class MyParent extends FrameLayout {
     private OnTouchListener listener=null;
     private boolean intercept=false;
     public MyParent(@NonNull Context context) {
@@ -31,18 +32,10 @@ public class MyParent extends RelativeLayout {
         if(listener!=null) intercept=listener.onTouch(this,ev);
         return super.dispatchTouchEvent(ev);
     }
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent e){
-        return intercept;
-    }
     public void setOnTouchListener(OnTouchListener listener){
         this.listener=listener;
     }
     public boolean onTouchEvent(MotionEvent e){
-        /*Log.i("touch",e.getAction()+"");
-        if(listener!=null){
-            listener.onTouch(this,e);
-        }*/
         return true;
     }
 
