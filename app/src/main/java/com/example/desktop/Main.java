@@ -18,8 +18,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -169,6 +167,10 @@ public class Main extends MyActivity implements View.OnClickListener{
 	}
 
 
+	/**
+	 * 窗口滑动动画
+	 * @param distance
+	 */
 	private void switchPage(float distance){
 		if(appList.getMaxPage()==1)return;
 		int page=appList.getPage();
@@ -202,7 +204,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 	}
 
 	/**
-	 * 换页动画
+	 * 窗口回弹、换页动画
 	 * @param critical 临界值，超过临界值就进行换页
 	 */
 	private void endSwitch(int critical){
@@ -230,6 +232,14 @@ public class Main extends MyActivity implements View.OnClickListener{
 		else return;
 		endSwitchAnimator(page,nextPage,left,to);
 	}
+
+	/**
+	 * 窗口回弹 切换动画
+	 * @param page 当前界面
+	 * @param nextPage 要切换到的界面
+	 * @param from 当前界面的X值
+	 * @param to 当前界面要到达的X值
+	 */
 	private void endSwitchAnimator(int page,int nextPage,float from,float to){
 		FrameLayout layout=wList.get(page);
 		FrameLayout next=wList.get(nextPage);
@@ -276,7 +286,6 @@ public class Main extends MyActivity implements View.OnClickListener{
 		topMask.findViewById(R.id.item6).setOnClickListener(this);
 
 
-
 		parent.setOnTouchListener(new TouchDirection() {
 			private boolean switchPage=false;
 			private float lastDistance;
@@ -310,18 +319,6 @@ public class Main extends MyActivity implements View.OnClickListener{
 					}break;
 				}
 			}
-
-			/**
-			 * 点击事件
-			 * @param x x
-			 * @param y y
-			 */
-
-			public void onClick(float x,float y){
-
-			}
-
-
 
 			/**
 			 * 长点击,800mills未移动
@@ -1096,9 +1093,9 @@ public class Main extends MyActivity implements View.OnClickListener{
 		topMask.setVisibility(View.VISIBLE);
 		LinearLayout re=topMask.findViewById(R.id.longClickBox);
 
-
-		int reW=re.getMeasuredWidth();
-		int reH=re.getMeasuredHeight();
+		
+		int reW=ShortCut.px(40*re.getChildCount());
+		int reH=ShortCut.px(50);
 		int left=touchObj.downView.getLeft();
 		int top=touchObj.downView.getTop();
 		left=left-reW/2+itemW/2;
@@ -1120,7 +1117,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 				re.setBackgroundColor(Color.WHITE);
 			}break;
 			case Config.Info.THEME_CARTON:{
-				re.setBackgroundColor(getResources().getColor(R.color.lightBlue));
+				re.setBackgroundColor(getResources().getColor(R.color._blue));
 			}break;
 		}
 	}

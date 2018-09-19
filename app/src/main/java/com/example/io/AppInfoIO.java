@@ -117,7 +117,7 @@ public class AppInfoIO{
     }
 
     /**
-     * 保存图片到本地
+     * 保存应用的icon
      * @param pkgName pkgName
      * @param bitmap bitmap
      */
@@ -126,15 +126,22 @@ public class AppInfoIO{
         if(!file.exists()){
             if(!file.mkdirs())return null;
         }
-        try {
-            String path=file.getAbsolutePath()+File.separator+pkgName+".png";
-            FileOutputStream fos=new FileOutputStream(path);
-            BufferedOutputStream bos=new BufferedOutputStream(fos);
+        String path=file.getAbsolutePath()+File.separator+pkgName+".png";
+        Bitmap bitmap1=Bitmap.createScaledBitmap(bitmap,136,136,false);
+        return saveBitmap(new File(path),bitmap1);
+    }
+
+    /**
+     * 保存图片到本地
+     * @param file file
+     * @param bitmap bitmap
+     */
+    public String saveBitmap(File file,Bitmap bitmap){
+        try(FileOutputStream fos=new FileOutputStream(file);
+            BufferedOutputStream bos=new BufferedOutputStream(fos)) {
             bitmap.compress(Bitmap.CompressFormat.PNG,100,bos);
             bos.flush();
-            bos.close();
-            fos.close();
-            return path;
+            return file.getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
         }

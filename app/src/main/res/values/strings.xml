@@ -38,5 +38,6 @@
     <string name="setting_lookingClickData">查看应用点击信息</string>
     <string name="setting_version">应用信息</string>
     <string name="setting_update">检查更新</string>
+    <string name="failed_permission">获取权限失败</string>
 
 </resources>

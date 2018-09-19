@@ -98,7 +98,7 @@ public abstract class TouchDirection implements View.OnTouchListener{
      * @param x x
      * @param y y
      */
-    public abstract void onClick(float x,float y);
+    public void onClick(float x,float y){};
 
     /**
      * 长点击

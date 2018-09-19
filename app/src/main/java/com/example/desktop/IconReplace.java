@@ -10,13 +10,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.graphics.BitmapCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -31,8 +36,12 @@ import com.example.config.PublicData;
 import com.example.dataType.AppList;
 import com.example.dataType.DesktopAppInfo;
 import com.example.interface_.MyActivity;
+import com.example.util.CommonsUtil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +95,7 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
         View navigator=findViewById(R.id.navigator);
         View titleBar=findViewById(R.id.titleBar);
         @Config.Info.ThemeStyle int theme=Config.readConfig().getTheme();
-
+        requestPermission();
         switch (theme){
             case Config.Info.THEME_DEFAULT:{
                 int bg=getResources().getColor(R.color.colorPrimary);
@@ -189,11 +198,6 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
         AppList appList=PublicData.getAppList();
         appList.replaceIcon(pkgName,((BitmapDrawable)selectedDrawable).getBitmap());
 
-
-        /*Intent intent=new Intent(this, BackgroundService.class);
-        intent.setAction("windowManage");
-        intent.putExtra("page",appList.getApp(pkgName).getPage());
-        startService(intent);*/
         setResult(RESULT_OK);
         finish();
     }
@@ -250,67 +254,40 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
     public void onActivityResult(int requestCode,int responseCode,Intent intent){
         if(requestCode==1&&responseCode==RESULT_OK){
            Uri uri=intent.getData();
+            Log.i("uri", "onActivityResult: "+uri);
            if(uri==null)return;
-           String path = null;
-
-           if(uri.getScheme().equals("content")){
-               Cursor cursor= getContentResolver().query(intent.getData(),null,null,null,null);
-               if(cursor==null){
-                   return;
-               }
-               /*String names[]=cursor.getColumnNames();
-               cursor.moveToFirst();
-               for(int i=0;i<names.length;i++){
-                   int it=cursor.getColumnIndex(names[i]);
-                   String data=cursor.getString(it);
-                   Log.i("sfsdfdsf","key="+names[i]+"val="+data);
-               }*/
-               int index=cursor.getColumnIndexOrThrow("_data");
-               if(cursor.moveToFirst()){
-                   path=cursor.getString(index);
-               }
-               cursor.close();
-           }else if(uri.getScheme().equals("file")){
-               path=uri.getPath();
-           }
-
-           if (path!=null){
-               replaceIcon(path);
-           }else {
-               showL("获取路径失败，尝试用其他的应用选择图片");
-           }
+           replaceIcon(uri);
        }
     }
 
     /**
      * 替换图标
-     * @param path path
+     * @param uri uri
      */
-    private void replaceIcon(String path){
-        requestPermission();
-        File file =new File(path);
-        if(!file.exists())return;
-        Bitmap bitmap= BitmapFactory.decodeFile(path);
-        if(bitmap==null)return;
-        int w=bitmap.getWidth();
-        int h=bitmap.getHeight();
-        float size=136f;
-        Matrix matrix=new Matrix();
-        matrix.setScale(size/w,size/h);
-        Bitmap icon=Bitmap.createBitmap(bitmap,0,0
-                ,w,h,matrix,true);
+    private void replaceIcon(Uri uri){
+        iconShow.setImageURI(uri);
         iconShowParent.setVisibility(View.VISIBLE);
         iconShowParent.bringToFront();
-        iconShow.setImageBitmap(icon);
-        selectedDrawable=new BitmapDrawable(getResources(),icon);
+        selectedDrawable=iconShow.getDrawable();
     }
     private void requestPermission(){
         int code= ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (code!=PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,new String[]{
                     Manifest.permission.READ_EXTERNAL_STORAGE
-            },0);
+            },111);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode!=111)return;
+        for (int grantResult : grantResults) {
+            if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                showL(CommonsUtil.getString(R.string.failed_permission));
+            }
+        }
+
     }
 
     /**
