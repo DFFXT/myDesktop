@@ -169,7 +169,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 
 	/**
 	 * 窗口滑动动画
-	 * @param distance
+	 * @param distance 手势水平滑动的长度
 	 */
 	private void switchPage(float distance){
 		if(appList.getMaxPage()==1)return;
@@ -210,7 +210,6 @@ public class Main extends MyActivity implements View.OnClickListener{
 	private void endSwitch(int critical){
 		int page=appList.getPage();
 		FrameLayout layout=wList.get(page);
-		FrameLayout next=null;
 		int nextPage;
 
 		float left=layout.getX();
@@ -241,6 +240,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 	 * @param to 当前界面要到达的X值
 	 */
 	private void endSwitchAnimator(int page,int nextPage,float from,float to){
+		switchAction=true;
 		FrameLayout layout=wList.get(page);
 		FrameLayout next=wList.get(nextPage);
 		ValueAnimator animator=ValueAnimator.ofFloat(from,to);
@@ -266,6 +266,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 					layout.setVisibility(View.GONE);
 					next.setVisibility(View.VISIBLE);
 				}
+				switchAction=false;
 			}
 		}));
 		animator.start();
@@ -293,18 +294,33 @@ public class Main extends MyActivity implements View.OnClickListener{
 			public void touchDirection(float distance) {
 				if(switchAction||deleteAction)return;
 				switchPage=true;
-				switchPaged=true;
 				lastDistance=Math.max(Math.abs(lastDistance),Math.abs(distance));
 				switchPage(distance);
-				releaseEvent(0);
+				releaseEvent();
 			}
 
+			private float preX,preY;
+			private float originX,originY;
 			@Override
 			public void onTouch(MotionEvent e) {
 				switch (e.getAction()){
 					case MotionEvent.ACTION_DOWN:{
+						preX=e.getRawX();
+						preY=e.getRawY();
+						originX=preX;
+						originY=preY;
 						switchPage=false;
 						switchPaged=false;
+					}break;
+					case MotionEvent.ACTION_MOVE:{
+						if(Math.abs(preX-e.getRawX())+Math.abs(preY-e.getRawY())>ShortCut.screenWidth()/30){
+							switchPaged=true;
+						}
+						preX=e.getRawX();
+						preY=e.getRawY();
+						if(Math.abs(preX-originX)+Math.abs(preY-originY)>ShortCut.screenWidth()/30){
+							switchPaged=true;
+						}
 					}break;
 					case MotionEvent.ACTION_UP:{
 						if(switchPage){
@@ -350,7 +366,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 			@Override
 			public void longClickUpMoved(float x, float y) {
 				PublicData.saveData();
-				releaseEvent(2);
+				releaseEvent();
 
 			}
 
@@ -365,7 +381,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 	/**
 	 * 清空事件
 	 */
-	private void releaseEvent(int id){
+	private void releaseEvent(){
 		if(touchObj.objType==TouchObj.WIDGET){
 			touchObj.downView.setBackgroundResource(R.drawable.view_only_border_dash);
 		}else{
@@ -479,7 +495,7 @@ public class Main extends MyActivity implements View.OnClickListener{
                 createWindow(appList.getPage(),View.VISIBLE);
                 wList.get(appList.getPage()).setVisibility(View.VISIBLE);
                 selectDot(wDList.get(appList.getPage()));
-                PublicData.saveData();;
+                PublicData.saveData();
             });
             popMenu.addItem("向后添加窗口", v1 -> {
                 resumeDot(wDList.get(appList.getPage()));
@@ -650,7 +666,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 	 */
 	private View createAppView(final DesktopAppInfo app, final int page){
 		if(app.getPage()<0) app.setPage(0);
-		View v= getLayoutInflater().inflate(R.layout.desktop_list,wList.get(page),false);
+		View v= getLayoutInflater().inflate(R.layout.item_desktop_app_item,wList.get(page),false);
 		FrameLayout.LayoutParams params= (FrameLayout.LayoutParams) v.getLayoutParams();
 		params.setMargins(app.getX(),0,0,app.getY());
 		params.gravity= Gravity.BOTTOM;
@@ -719,7 +735,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 				}
 
 			}
-			releaseEvent(0);
+			releaseEvent();
 		});
 		v.setOnLongClickListener((view)->{
 			touchObj.objType=TouchObj.APP;
@@ -860,7 +876,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 
 	private boolean switchAction=false;
 	public void setAdapter(){//--设置适配器
-		GridViewAdapter adapterShort = new GridViewAdapter(Main.this, R.layout.desktop_list,appList.getShortCutList(), pManager);
+		GridViewAdapter adapterShort = new GridViewAdapter(Main.this, R.layout.item_desktop_app_item,appList.getShortCutList(), pManager);
 		shortcut.setAdapter(adapterShort);
 	}
 
@@ -1082,7 +1098,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 	 */
 	private void hiddenLongClickItem(){
 		topMask.setVisibility(View.GONE);
-		releaseEvent(3);
+		releaseEvent();
 	}
 
 	/**

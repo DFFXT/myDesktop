@@ -4,14 +4,16 @@
     android:layout_height="wrap_content"
     >
     <ImageView 
-      android:id="@+id/icon"
-      android:layout_width="60dp"  
-      android:layout_height="60dp"
-      android:contentDescription="@string/action_settings"
+      	android:id="@+id/icon"
+      	android:layout_width="64dp"
+      	android:layout_height="64dp"
+		android:scaleType="fitCenter"
+		android:padding="2dp"
+		android:contentDescription="@string/action_settings"
         />
     <TextView
         android:id="@+id/title"
-      	android:layout_width="60dp"  
+      	android:layout_width="64dp"
       	android:layout_height="wrap_content"
       	android:layout_below="@id/icon" 
       	android:gravity="center"
