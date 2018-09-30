@@ -1,15 +1,7 @@
 package com.example.config;
 
-import android.support.annotation.IntDef;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 判断Touch的方向
@@ -23,37 +15,46 @@ public abstract class TouchDirection implements View.OnTouchListener{
     private boolean up;
     private boolean longClicked=false;//**这次点下的长点击是否有效
     private boolean moved=false;
-    private LinkedBlockingDeque deque=new LinkedBlockingDeque();
-    private ThreadPoolExecutor executor=new ThreadPoolExecutor(1,2,100, TimeUnit.MILLISECONDS,deque);
+    private boolean startMove=false;//****开始滑动，提高距离限制，后面滑动就不进行限制
+    private boolean startLongClickMove=false;
+    private boolean longClickConsume=false;
+
+    private int startMoveMinGap= (int) (ShortCut.screenWidth()*0.08f);
+
     @Override
     public boolean onTouch(final View v, final MotionEvent event) {
         onTouch(event);
         if(event.getAction()==MotionEvent.ACTION_DOWN){
             down(event);
+            startMove=false;
             up=false;
             id++;
             longClicked=false;
             moved=false;
             movePreX=preX=event.getX();
             movePreY=preY=event.getY();
-            //Log.i("down","down");
             int tmpId=id;
-            executor.submit(() -> {//***模拟LongClick
-                try {
-                    Thread.sleep(600);
-                    if(tmpId==id){
-                        if(!up&&!longClicked&&!moved){
-                            longClicked=true;
-                            v.post(() -> longOnClick(preX,preY));
-                        }
+            v.postDelayed(()->{
+                if(tmpId==id){
+                    if(!up&&!longClicked&&!moved){
+                        longClicked=true;
+                        longClickConsume=longOnClick(preX,preY);
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
-            });
+            },520);
+
+
             return false;
         }else if(event.getAction()==MotionEvent.ACTION_MOVE){
-            if(!longClicked&&Math.abs(preX-event.getX())>Math.abs(preY-event.getY())*0.5){//左右滑动
+            //**开始滑动跳高距离限制
+            if(!startMove&&!longClickConsume&&Math.abs(preX-event.getX())>Math.abs(preY-event.getY())*0.5){
+                if(Math.abs(preX-event.getX())>=startMoveMinGap) {
+                    touchDirection(event.getX() - movePreX);
+                    moved = true;
+                    startMove=true;
+                }
+            }
+            else if(startMove&&!longClickConsume){//进行滑动即时响应
                 touchDirection(event.getX()-movePreX);
                 moved=true;
             }
@@ -61,17 +62,22 @@ public abstract class TouchDirection implements View.OnTouchListener{
             if(abs>20){
                 moved=true;
             }
-            if(longClicked&&abs>10){//**长点击有效，可以拖动图标
+            if(!startLongClickMove&&longClicked&&abs>=startMoveMinGap){//**长点击有效，可以拖动图标
                 moved=true;
-                longClickMove(event.getX(),event.getY());
+                startLongClickMove=true;
+                longClickMove(event.getX()-movePreX,event.getY()-movePreY);
+            }else if(longClicked&&startLongClickMove) {
+                longClickMove(event.getX()-movePreX,event.getY()-movePreY);
             }
             movePreX=event.getX();
             movePreY=event.getY();
             return true;
         }
         else if(event.getAction()==MotionEvent.ACTION_UP){
+            startLongClickMove=false;
+            startMove=false;
             up=true;
-            if(Math.abs(preX-event.getX())+Math.abs(preY-event.getY())<20){
+            if(Math.abs(preX-event.getX())+Math.abs(preY-event.getY())<startMoveMinGap){
                 if(!longClicked&&!moved) {
                     onClick(preX, preY);
                 }
@@ -82,6 +88,7 @@ public abstract class TouchDirection implements View.OnTouchListener{
                 else
                     longClickUpMoved(event.getX(),event.getY());
             }
+            longClickConsume=false;
         }
         return false;
 
@@ -105,7 +112,7 @@ public abstract class TouchDirection implements View.OnTouchListener{
      * @param x x
      * @param y y
      */
-    public abstract void longOnClick(float x,float y);
+    public abstract boolean longOnClick(float x,float y);
     /**
      * 长点击移动
      * @param x x

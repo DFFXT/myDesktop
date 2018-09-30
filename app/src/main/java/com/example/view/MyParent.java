@@ -27,6 +27,7 @@ public class MyParent extends FrameLayout {
         super(context, attrs, defStyleAttr);
     }
 
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if(listener!=null) intercept=listener.onTouch(this,ev);

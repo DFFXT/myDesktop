@@ -341,11 +341,13 @@ public class Main extends MyActivity implements View.OnClickListener{
 			 * @param x x
 			 * @param y y
 			*/
-			public void longOnClick(float x,float y){
-				if(touchObj.downView==null)return;
+			public boolean longOnClick(float x,float y){
+				if(touchObj.downView==null)return false;
 				preX=(int)x;
 				preY=(int)y;
+
 				touchObj.downView.setBackgroundResource(R.drawable.view_only_border);
+				return true;
 			}
 
 			@Override
@@ -1011,15 +1013,13 @@ public class Main extends MyActivity implements View.OnClickListener{
 
 	/**
 	 * 移动app位置
-	 * @param x x
-	 * @param y y
 	 */
-	private void moveApp(int x,int y){
+	private void moveApp(int dx,int dy){
 		//**空对象或者切换动画未停止是禁止移动app的
 		if(touchObj.objType!=TouchObj.APP||touchObj.downView==null||switchAction) return;
 		FrameLayout.LayoutParams params= (FrameLayout.LayoutParams) touchObj.downView.getLayoutParams();
-		int left=params.leftMargin-(preX-x);
-		int bottom=params.bottomMargin+preY-y;
+		int left=params.leftMargin+dx;
+		int bottom=params.bottomMargin-dy;
 		//**左移动app到另一窗口
 		if(left<-20){
 			if(preMoveTime==0){
@@ -1069,28 +1069,21 @@ public class Main extends MyActivity implements View.OnClickListener{
 		touchObj.info.setWeight(res[2]);
 
 		touchObj.downView.setLayoutParams(params);
-		preX=x;
-		preY=y;
 	}
 
 	/**
 	 * 移动插件
-	 * @param x x
-	 * @param y y
 	 */
-	private void moveWidget(int x,int y){
+	private void moveWidget(int dx,int dy){
 		if(touchObj.objType!=TouchObj.WIDGET||touchObj.downView==null) return;
 		FrameLayout.LayoutParams params= (FrameLayout.LayoutParams) touchObj.downView.getLayoutParams();
-		int left=params.leftMargin-(preX-x);
-		int top=params.topMargin-(preY-y);
+		int left=params.leftMargin+dx;
+		int top=params.topMargin+dy;
 
 		params.setMargins(left,top,0,0);
 		touchObj.widget.setX(left);
 		touchObj.widget.setY(top);
 		touchObj.downView.setLayoutParams(params);
-
-		preX=x;
-		preY=y;
 	}
 
 	/**
