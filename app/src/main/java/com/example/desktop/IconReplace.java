@@ -5,43 +5,32 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.graphics.BitmapCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.background.BackgroundService;
-import com.example.config.Config;
 import com.example.config.GridViewDrawableAdapter;
 import com.example.config.PublicData;
+import com.example.config.appdata.AppConfigManager;
+import com.example.config.appdata.configs.ThemeConfig;
 import com.example.dataType.AppList;
 import com.example.dataType.DesktopAppInfo;
 import com.example.interface_.MyActivity;
 import com.example.util.CommonsUtil;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,10 +83,10 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
     private void setTheme(){
         View navigator=findViewById(R.id.navigator);
         View titleBar=findViewById(R.id.titleBar);
-        @Config.Info.ThemeStyle int theme=Config.readConfig().getTheme();
+        int theme= AppConfigManager.instance().getThemeConfig().getTheme();
         requestPermission();
         switch (theme){
-            case Config.Info.THEME_DEFAULT:{
+            case ThemeConfig.THEME_DEFAULT:{
                 int bg=getResources().getColor(R.color.colorPrimary);
                 titleBar.setBackgroundColor(bg);
                 navigator.setBackgroundColor(bg);
@@ -106,7 +95,7 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
                 replaceView.setBackgroundColor(bg);
                 iconShowParent.setBackgroundColor(bg);
             }break;
-            case Config.Info.THEME_CARTON:{
+            case ThemeConfig.THEME_CARTON:{
                 int bg=getResources().getColor(R.color.blue);
                 navigator.setBackgroundColor(bg);
                 titleBar.setBackgroundColor(bg);

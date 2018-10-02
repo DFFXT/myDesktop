@@ -3,6 +3,8 @@ package com.example.config;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.example.util.ShortCut;
+
 /**
  * 判断Touch的方向
  * Created by home on 2018/2/15.

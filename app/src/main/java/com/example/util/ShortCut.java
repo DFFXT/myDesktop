@@ -1,14 +1,13 @@
-package com.example.config;
+package com.example.util;
 
 import android.os.Message;
 import android.util.Log;
 import android.util.TypedValue;
 
+import com.example.config.MainApplication;
 import com.example.dataType.AppList;
 import com.example.dataType.DesktopAppInfo;
 import com.example.desktop.R;
-import com.example.interface_.MyActivity;
-import com.example.io.AppInfoIO;
 
 import java.util.ArrayList;
 
@@ -34,7 +33,7 @@ public class ShortCut {
      * @return px
      */
     public static int px(int dp){
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dp,MainApplication.getContext().getResources().getDisplayMetrics());
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dp, MainApplication.getContext().getResources().getDisplayMetrics());
     }
 
 

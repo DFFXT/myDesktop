@@ -4,17 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.example.config.GetFiles;
 import com.example.config.MainApplication;
-import com.example.config.ShortCut;
 import com.example.dataType.AppList;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;

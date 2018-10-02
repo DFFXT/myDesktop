@@ -35,6 +35,9 @@ public abstract class MyActivity extends Activity {
         super.setContentView(view,params);
         setNavigation(getNavigatorH());
     }
+    private void setScreenBrightness(){
+
+    }
 
 
 

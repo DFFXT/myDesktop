@@ -16,15 +16,13 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.config.PublicData;
-import com.example.config.ShortCut;
+import com.example.util.ShortCut;
 import com.example.dataType.AppList;
 import com.example.dataType.DesktopAppInfo;
 import com.example.interface_.DesktopInterface;
-import com.example.io.AppInfoIO;
 
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Objects;
 
 public class BackgroundService extends Service{
 	private DesktopInterface desktopInterface;

@@ -1,11 +1,8 @@
 package com.example.desktop;
 
 import android.app.Activity;
-import android.app.Application;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.VersionedPackage;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,9 +14,11 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.example.background.BackgroundService;
-import com.example.config.Config;
 import com.example.config.DownloadUpdate;
 import com.example.config.PublicData;
+import com.example.config.appdata.AppConfigManager;
+import com.example.config.appdata.configs.CommonConfig;
+import com.example.config.appdata.configs.ThemeConfig;
 import com.example.dataType.AppList;
 import com.example.dataType.DesktopAppInfo;
 import com.example.interface_.MyActivity;
@@ -29,7 +28,6 @@ import com.popwindow.w.plug.InputDialog;
 import com.popwindow.w.plug.LineMenu;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
@@ -64,18 +62,18 @@ public class Setting extends MyActivity implements View.OnClickListener{
      * 根据主题设置样式
      */
     private void setTheme(){
-        @Config.Info.ThemeStyle int theme=Config.readConfig().getTheme();
+        int theme= AppConfigManager.instance().getThemeConfig().getTheme();
         TextView title=findViewById(R.id.title);
         View navigator=findViewById(R.id.navigator);
         View itemBox=findViewById(R.id.itemBox);
         switch (theme){
-            case Config.Info.THEME_DEFAULT:{
+            case ThemeConfig.THEME_DEFAULT:{
                 int bg=getResources().getColor(R.color.colorPrimary);
                 navigator.setBackgroundColor(bg);
                 title.setBackgroundColor(bg);
 
             }break;
-            case Config.Info.THEME_CARTON:{
+            case ThemeConfig.THEME_CARTON:{
                 int bg=getResources().getColor(R.color.blue);
                 navigator.setBackgroundColor(bg);
                 title.setBackgroundColor(bg);
@@ -105,30 +103,30 @@ public class Setting extends MyActivity implements View.OnClickListener{
         recordCheckBox=findViewById(R.id.recordClickCheckBox);
         textColorShow=findViewById(R.id.textColorShow);
 
-        Config.Info info=Config.readConfig();
-        textShowCheckBox.setChecked(info.isShowText());
-        recordCheckBox.setChecked(info.isRecordClick());
-        textColorShow.setBackgroundColor(info.getColor());
+        CommonConfig commonConfig= AppConfigManager.instance().getCommonConfig();
+
+
+        textShowCheckBox.setChecked(commonConfig.isShowText());
+        recordCheckBox.setChecked(commonConfig.isRecordClick());
+        textColorShow.setBackgroundColor(commonConfig.getTextColor());
 
 
 
         //***切换是否显示字体
         textShowCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Config.Info info12 =Config.readConfig();
             if(textShowCheckBox.isChecked()){
-                info12.setShowText(true);
+                commonConfig.setShowText(true);
             }else {
-                info12.setShowText(false);
+                commonConfig.setShowText(false);
             }
             rebootDesktop();
         });
         //**切换是否记录点击量
         recordCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Config.Info info1 =Config.readConfig();
             if(recordCheckBox.isChecked()){
-                info1.setRecordClick(true);
+                commonConfig.setRecordClick(true);
             }else {
-                info1.setRecordClick(false);
+                commonConfig.setRecordClick(false);
             }
             rebootDesktop();
         });
@@ -230,13 +228,13 @@ public class Setting extends MyActivity implements View.OnClickListener{
         lineMenu.setIconSize(80,50);
         final int colors[]=new int[]{Color.BLACK,Color.RED,Color.WHITE,Color.GREEN,Color.CYAN};
         View views[]=new View[colors.length];
+        CommonConfig commonConfig= AppConfigManager.instance().getCommonConfig();
         for(int i=0;i<colors.length;i++){
             final int finalI = i;
             views[i]=lineMenu.addItem("", -1, v -> {
-                Config.Info info=Config.readConfig();
-                info.setColor(colors[finalI]);
+                commonConfig.setTextColor(colors[finalI]);
                 textColorShow.setBackgroundColor(colors[finalI]);
-                if(info.isShowText()){
+                if(commonConfig.isShowText()){
                     rebootDesktop();
                 }
             });
@@ -257,10 +255,9 @@ public class Setting extends MyActivity implements View.OnClickListener{
                         show("颜色格式错误");
                         return;
                     }
-                    Config.Info info=Config.readConfig();
-                    info.setColor(Color.parseColor(s));
+                    commonConfig.setTextColor(Color.parseColor(s));
                     textColorShow.setBackgroundColor(color);//**颜色预览
-                    if(info.isShowText()){
+                    if(commonConfig.isShowText()){
                         rebootDesktop();
                     }
                 }

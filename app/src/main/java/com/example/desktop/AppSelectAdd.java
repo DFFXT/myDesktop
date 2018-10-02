@@ -5,23 +5,20 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.example.config.AppListAdapter;
-import com.example.background.BackgroundService;
-import com.example.config.Config;
 import com.example.config.PublicData;
-import com.example.config.ShortCut;
+import com.example.util.ShortCut;
+import com.example.config.appdata.AppConfigManager;
+import com.example.config.appdata.configs.ThemeConfig;
 import com.example.dataType.AppList;
 import com.example.dataType.DesktopAppInfo;
 import com.example.interface_.MyActivity;
@@ -82,14 +79,14 @@ public class AppSelectAdd extends MyActivity {
         View navigator=findViewById(R.id.navigator);
         View bar=findViewById(R.id.bar);
         View itemBox=findViewById(R.id.mainArea);
-        @Config.Info.ThemeStyle int theme=Config.readConfig().getTheme();
+        int theme= AppConfigManager.instance().getThemeConfig().getTheme();
         switch (theme){
-            case Config.Info.THEME_DEFAULT:{
+            case ThemeConfig.THEME_DEFAULT:{
                 int bg=getResources().getColor(R.color.colorPrimary);
                 bar.setBackgroundColor(bg);
                 navigator.setBackgroundColor(bg);
             }break;
-            case Config.Info.THEME_CARTON:{
+            case ThemeConfig.THEME_CARTON:{
                 int bg=getResources().getColor(R.color.blue);
                 bar.setBackgroundColor(bg);
                 navigator.setBackgroundColor(bg);

@@ -7,16 +7,14 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.config.ClickData;
-import com.example.config.Config;
+import com.example.config.appdata.AppConfigManager;
+import com.example.config.appdata.configs.ThemeConfig;
 import com.example.interface_.MyActivity;
 import com.example.io.ClickDataIO;
 import com.popwindow.w.WindowConfirm;
@@ -73,13 +71,13 @@ public class LookingClickData extends MyActivity{
 		View navigator=findViewById(R.id.navigator);
 		TextView title=findViewById(R.id.stream_title);
 		View box=findViewById(R.id.parent);
-		@Config.Info.ThemeStyle int theme=Config.readConfig().getTheme();
+		int theme= AppConfigManager.instance().getThemeConfig().getTheme();
 		switch (theme){
-			case Config.Info.THEME_DEFAULT:{
+			case ThemeConfig.THEME_DEFAULT:{
 				navigator.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 				title.setTextColor(Color.WHITE);
 			}break;
-			case Config.Info.THEME_CARTON:{
+			case ThemeConfig.THEME_CARTON:{
 				title.setTextColor(Color.WHITE);
 				navigator.setBackgroundColor(getResources().getColor(R.color.blue));
 				box.setBackgroundResource(R.drawable.big_bg_s);

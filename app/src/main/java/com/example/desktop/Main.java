@@ -36,11 +36,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.background.BackgroundService;
-import com.example.config.Config;
 import com.example.config.GridViewAdapter;
 import com.example.config.PublicData;
-import com.example.config.ShortCut;
+import com.example.util.ShortCut;
 import com.example.config.TouchDirection;
+import com.example.config.appdata.AppConfigManager;
+import com.example.config.appdata.configs.ThemeConfig;
 import com.example.dataType.AppList;
 import com.example.dataType.AppWidget;
 import com.example.dataType.DesktopAppInfo;
@@ -515,14 +516,14 @@ public class Main extends MyActivity implements View.OnClickListener{
 			});
 
             popMenu.setWidthPercent(0.5f);
-			@Config.Info.ThemeStyle int theme=Config.readConfig().getTheme();
+			int theme= AppConfigManager.instance().getThemeConfig().getTheme();
 			switch (theme){
-				case Config.Info.THEME_DEFAULT:{
+				case ThemeConfig.THEME_DEFAULT:{
 					/*popMenu.setParentBackground();
 					popMenu.*/
 
 				}break;
-				case Config.Info.THEME_CARTON:{
+				case ThemeConfig.THEME_CARTON:{
 					popMenu.setParentBackground(R.drawable.alert_bg_xml);
 				}break;
 			}
@@ -708,14 +709,11 @@ public class Main extends MyActivity implements View.OnClickListener{
 		}
 
 		TextView textView=v.findViewById(R.id.title);
-		if(Config.readConfig()==null){//**是否读取了配置
-			Config.readConfig();
-		}
 		//**是否显示App名称
-		if(Config.readConfig().isShowText()) {
+		if(AppConfigManager.instance().getCommonConfig().isShowText()) {
 			textView.setText(app.getOtherLabel() == null ? app.getLabel() : app.getOtherLabel());
 			//**显示每次则设置字体颜色
-			textView.setTextColor(Config.readConfig().getColor());
+			textView.setTextColor(AppConfigManager.instance().getCommonConfig().getTextColor());
 		}
 
 
@@ -887,7 +885,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 	 * @param pkgName packageName
 	 */
 	private void addClickAmount(String pkgName){
-		if(!Config.readConfig().isRecordClick())return;//**未开启点击数++
+		if(!AppConfigManager.instance().getCommonConfig().isRecordClick())return;//**未开启点击数++
 		new ClickDataIO().addClick(pkgName);
 	}
 	/**
@@ -916,7 +914,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 		public void onItemClick(AdapterView<?> arg0, View v, int position,
 								long arg3) {//--点击进入应用，同时记录点击次数
 			String pkgName=data.get(position).getPkgName();
-			if(Config.readConfig().isRecordClick()){
+			if(AppConfigManager.instance().getCommonConfig().isRecordClick()){
 				//***是否记录点击
 				addClickAmount(pkgName);
 			}
@@ -949,13 +947,11 @@ public class Main extends MyActivity implements View.OnClickListener{
 	private void showThemeSelect(){
 		PopMenu popMenu=new PopMenu(this);
 		popMenu.addItem("默认", v -> {
-            Config.Info info=Config.readConfig();
-            info.setTheme(Config.Info.THEME_DEFAULT);
+            AppConfigManager.instance().getThemeConfig().setTheme(ThemeConfig.THEME_DEFAULT);
         }).setPadding(0,20,0,20);
 		
 		popMenu.addItem("二次元", v -> {
-            Config.Info info=Config.readConfig();
-            info.setTheme(Config.Info.THEME_CARTON);
+			AppConfigManager.instance().getThemeConfig().setTheme(ThemeConfig.THEME_CARTON);
         }).setPadding(0,20,0,20);
 		popMenu.setWidthPercent(0.5f);
 		popMenu.show();
@@ -990,16 +986,16 @@ public class Main extends MyActivity implements View.OnClickListener{
 	}
 	private void showMenu(){
 		//***根据主题显示对应样式
-		int theme=Config.readConfig().getTheme();
+		int theme= AppConfigManager.instance().getThemeConfig().getTheme();
 		switch (theme){
-			case Config.Info.THEME_CARTON:{
+			case ThemeConfig.THEME_CARTON:{
 				@DrawableRes int res[]=new int[]{R.drawable.bg_item1,R.drawable.bg_item2,R.drawable.bg_item3,
 						R.drawable.bg_item4,R.drawable.bg_item5,R.drawable.bg_item6};
 				for(int i=0;i<menuItems.size();i++){
 					menuItems.get(i).setBackgroundResource(res[i]);
 				}
 			}break;
-			case Config.Info.THEME_DEFAULT:{
+			case ThemeConfig.THEME_DEFAULT:{
 				for(int i=0;i<menuItems.size();i++){
 					menuItems.get(i).setBackgroundColor(Color.WHITE);
 				}
@@ -1120,12 +1116,12 @@ public class Main extends MyActivity implements View.OnClickListener{
 		re.setLayoutParams(params);
 
 		//**设置主题样式
-		@Config.Info.ThemeStyle int theme=Config.readConfig().getTheme();
+		int theme= AppConfigManager.instance().getThemeConfig().getTheme();
 		switch (theme){
-			case Config.Info.THEME_DEFAULT:{
+			case ThemeConfig.THEME_DEFAULT:{
 				re.setBackgroundColor(Color.WHITE);
 			}break;
-			case Config.Info.THEME_CARTON:{
+			case ThemeConfig.THEME_CARTON:{
 				re.setBackgroundColor(getResources().getColor(R.color._blue));
 			}break;
 		}
