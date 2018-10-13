@@ -2,9 +2,11 @@ package com.example.desktop;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -13,15 +15,20 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.Target;
 import com.example.config.GridViewDrawableAdapter;
 import com.example.config.PublicData;
 import com.example.config.appdata.AppConfigManager;
@@ -31,8 +38,10 @@ import com.example.dataType.DesktopAppInfo;
 import com.example.interface_.MyActivity;
 import com.example.util.CommonsUtil;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -58,7 +67,6 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
     //**顶部的3个按钮
     private TextView but1,but2,but3;
 
-    private MyHandler handler=new MyHandler(this);
     @Override
     public void setNavigation(int h) {
         View v=findViewById(R.id.navigator);
@@ -243,9 +251,40 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
     public void onActivityResult(int requestCode,int responseCode,Intent intent){
         if(requestCode==1&&responseCode==RESULT_OK){
            Uri uri=intent.getData();
-            Log.i("uri", "onActivityResult: "+uri);
-           if(uri==null)return;
-           replaceIcon(uri);
+            if(uri==null)return;
+            replaceIcon(uri);
+            /*String path = null;
+            if(ContentResolver.SCHEME_FILE.equals(uri.getScheme())){
+                path=uri.getPath();
+            }else if(ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())){
+                if("com.android.providers.media.documents".equals(uri.getAuthority())){
+                    String res[]=DocumentsContract.getDocumentId(uri).split(":");
+                    if("image".equals(res[0])){
+                        Cursor cursor=getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                new String[]{"_data"},"_id=?",new String[]{res[1]},null);
+                        if(cursor!=null&&cursor.moveToFirst()){
+                            path=cursor.getString(0);
+                        }
+                        if (cursor != null) {
+                            cursor.close();
+                        }
+                    }
+                }else {
+                    Cursor cursor=getContentResolver().query(uri,new String[]{"_data"},null,null,null);
+                    if(cursor==null)return;
+                    if (cursor.moveToFirst()){
+                        do {
+                            path=cursor.getString(0);
+                        }while (cursor.moveToNext());
+
+                    }
+                    cursor.close();
+                }
+            }
+            if(path==null){
+                replaceIcon(uri);
+            }else
+                replaceIcon(path);*/
        }
     }
 
@@ -254,7 +293,7 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
      * @param uri uri
      */
     private void replaceIcon(Uri uri){
-        iconShow.setImageURI(uri);
+        Glide.with(this).load(uri).into(iconShow);
         iconShowParent.setVisibility(View.VISIBLE);
         iconShowParent.bringToFront();
         selectedDrawable=iconShow.getDrawable();
@@ -309,7 +348,7 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
         new Thread(() -> {
             replacedList=getReplaceDrawable();
             replacedListAdapter=new GridViewDrawableAdapter(IconReplace.this,replacedList);
-            handler.sendEmptyMessage(1);
+            runOnUiThread(this::setReplacedListAdapter);
         }).start();
     }
 
@@ -318,23 +357,5 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
         finish();
     }
 
-    private static class MyHandler extends Handler{
-        private WeakReference reference;
-        MyHandler(Activity activity){
-            reference=new WeakReference<>(activity);
-        }
-        public void handleMessage(Message msg){
-            IconReplace act= (IconReplace) reference.get();
-            switch (msg.what){
-                case 0:{
-                    if(msg.obj!=null)
-                        act.show(msg.obj.toString());
-                }break;
-                case 1:{
-                    act.setReplacedListAdapter();
-                }break;
-            }
-        }
-    }
 
 }
