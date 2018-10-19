@@ -1,5 +1,7 @@
 package com.example.util;
 
+import android.app.Activity;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -11,6 +13,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.StringRes;
+import android.util.DisplayMetrics;
 
 import org.litepal.LitePalApplication;
 
@@ -44,5 +47,23 @@ public final class CommonsUtil {
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
         canvas.drawBitmap(bitmap,0,0,paint);
         return dst;
+    }
+    /**
+     * 获取虚拟按键的高度
+     *
+     * @param activity ac
+     * @return height
+     */
+    public static int getVirtualKeyBordHeight(Activity activity) {
+        int height = 0;
+        Resources resources = activity.getResources();
+        int displayHeight = resources.getDisplayMetrics().heightPixels;
+        DisplayMetrics metrics = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
+        int realHeight = metrics.heightPixels;
+        if (realHeight > displayHeight) {
+            height = realHeight - displayHeight;
+        }
+        return height;
     }
 }

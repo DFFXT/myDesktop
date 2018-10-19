@@ -164,6 +164,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 		topMask=findViewById(R.id.topMask);
 		//**初始化数据
 		pManager=getPackageManager();
+		findViewById(R.id.mianRoot).setPadding(0,0,0,CommonsUtil.getVirtualKeyBordHeight(this));
 
 		//****入口
 
