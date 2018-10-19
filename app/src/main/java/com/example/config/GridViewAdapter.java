@@ -11,7 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.config.appdata.AppConfigManager;
+import com.example.config.appData.AppConfigManager;
 import com.example.dataType.DesktopAppInfo;
 import com.example.desktop.R;
 

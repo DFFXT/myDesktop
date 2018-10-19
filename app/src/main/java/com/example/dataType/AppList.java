@@ -1,12 +1,10 @@
 package com.example.dataType;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
-import android.util.SparseArray;
 
-import com.example.interface_.DesktopInterface;
 import com.example.io.AppInfoIO;
 
 import java.io.Serializable;
@@ -26,7 +24,6 @@ public class AppList implements Serializable {
     private ArrayList<DesktopAppInfo> shortCutList=new ArrayList<>();
     //**应用插件列表
     private ArrayList<AppWidget> appWidgetList=new ArrayList<>();
-    private int maxPage;
 
 
 
@@ -47,9 +44,6 @@ public class AppList implements Serializable {
                 }
             }
             pageAppList.get(app.getPage()).add(app);
-        }
-        if(maxPage<app.getPage()){
-            maxPage=app.getPage();
         }
         return true;
     }
@@ -82,7 +76,7 @@ public class AppList implements Serializable {
      * @param pkgName pkgName
      */
     public void removeApp(String pkgName){
-        for(int page=0;page<=maxPage;page++){
+        for(int page=0;page<pageAppList.size();page++){
             ArrayList<DesktopAppInfo> list=pageAppList.get(page);
             for(int i=0;i<list.size();i++){
                 if(list.get(i).getPkgName().equals(pkgName)){
@@ -95,7 +89,7 @@ public class AppList implements Serializable {
     }
 
     public void remove(DesktopAppInfo obj){
-        for(int page=0;page<=maxPage;page++){
+        for(int page=0;page<pageAppList.size();page++){
             ArrayList<DesktopAppInfo> list=pageAppList.get(page);
             for(int i=0;i<list.size();i++){
                 if(list.get(i).equals(obj)){
@@ -112,19 +106,17 @@ public class AppList implements Serializable {
      * @param page page
      */
     public void addPage(int page){
-        if(page>=maxPage+1) {
-            pageAppList.add(new ArrayList<DesktopAppInfo>());
+        if(page>=pageAppList.size()) {
+            pageAppList.add(new ArrayList<>());
         }else {
-            for(int p=page;p<maxPage;p++){
+            pageAppList.add(page, new ArrayList<>());
+            for(int p=page;p<pageAppList.size();p++){
                 ArrayList<DesktopAppInfo> apps=pageAppList.get(p);
-                for(int i=0;apps!=null&&i<apps.size();i++){
-                    apps.get(i).setPage(apps.get(i).getPage()+1);
+                for(int i=page+1;apps!=null&&i<apps.size();i++){
+                    apps.get(i).setPage(p);
                 }
             }
-            pageAppList.add(page, new ArrayList<DesktopAppInfo>());
-
         }
-        maxPage++;
     }
     /**
      * 删除一个页面
@@ -132,32 +124,32 @@ public class AppList implements Serializable {
      * @param page page
      */
     public void removePage(int page){
-        if(page>maxPage) return;
-        for(int i=page+1;i<maxPage;i++){
+        if(page>=pageAppList.size()) return;
+        pageAppList.remove(page);
+        for(int i=page;i<pageAppList.size();i++){
             ArrayList<DesktopAppInfo> apps=getPage(i);
             for(int index=0;index<apps.size();index++){
-                apps.get(index).setPage(apps.get(index).getPage()-1);
+                apps.get(index).setPage(i);
             }
         }
-        pageAppList.remove(page);
-        maxPage--;
     }
 
     /**
      * 获取应用所在的页面
-     * @param pkgName pkgName
+     * @param name app name
      * @return page
      */
-    public DesktopAppInfo getApp(String pkgName){
-        if(pkgName==null )return null;
+    @Nullable
+    public DesktopAppInfo getApp(String name){
+        if(TextUtils.isEmpty(name))return null;
         for(int i=0;i<pageAppList.size();i++){
             ArrayList<DesktopAppInfo> list=pageAppList.get(i);
             for(int index=0;index<list.size();index++){
-                if(list.get(index).getPkgName().equals(pkgName)) return list.get(index);
+                if(list.get(index).getName().equals(name)) return list.get(index);
             }
         }
         for(int i=0;i<shortCutList.size();i++){
-            if(shortCutList.get(i).getPkgName().equals(pkgName))return shortCutList.get(i);
+            if(shortCutList.get(i).getName().equals(name))return shortCutList.get(i);
         }
         return null;
     }
@@ -209,8 +201,8 @@ public class AppList implements Serializable {
         }
     }
     //**对APP图标进行替换
-    public void replaceIcon(String pkgName, Bitmap bitmap){
-        DesktopAppInfo app=getApp(pkgName);
+    public void replaceIcon(String name, Bitmap bitmap){
+        DesktopAppInfo app=getApp(name);
         replaceIcon(app,bitmap);
 
     }
@@ -223,7 +215,7 @@ public class AppList implements Serializable {
     public void replaceIcon(DesktopAppInfo app, Bitmap bitmap){
         app.setHasOtherIcon(true);
         AppInfoIO appInfoIO=new AppInfoIO();
-        String path=appInfoIO.saveAppIcon(app.getPkgName(),bitmap);
+        String path=appInfoIO.saveAppIcon(app.getName(),bitmap);
         app.setIconPath(path);
         appInfoIO.saveAppInfo(this);
     }
@@ -232,7 +224,7 @@ public class AppList implements Serializable {
 
 
     public int getMaxPage() {
-        return maxPage;
+        return pageAppList.size();
     }
 
     /**

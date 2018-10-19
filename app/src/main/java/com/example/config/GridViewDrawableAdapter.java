@@ -40,7 +40,7 @@ public class GridViewDrawableAdapter extends BaseAdapter {
 		if(v==null){
 			item=new Item();
 			v= LayoutInflater.from(context).inflate(R.layout.icon,arg2,false);
-			item.icon=v.findViewById(R.id.icon);
+			item.icon=v.findViewById(R.id.img_appIcon);
 			v.setTag(item);
 		}
 		else{

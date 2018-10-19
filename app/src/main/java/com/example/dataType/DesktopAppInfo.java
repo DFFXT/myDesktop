@@ -1,11 +1,8 @@
 package com.example.dataType;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 
 import com.example.io.AppInfoIO;
-
-import org.litepal.crud.DataSupport;
 
 import java.io.Serializable;
 
@@ -43,6 +40,8 @@ public class DesktopAppInfo implements Serializable{
     private int weight;
     //**应用图标放大系数
     private float scale=1;
+
+    private transient Bitmap icon;
     public DesktopAppInfo(String pkgName,String name,String label,int page,int x,int y,AppList.AppType appType){
         this.pkgName=pkgName;
         this.label=label;
@@ -119,7 +118,10 @@ public class DesktopAppInfo implements Serializable{
     }
 
     public Bitmap getOtherIcon() {
-        return new AppInfoIO().readAppIcon(iconPath);
+        if(icon==null){
+            icon=new AppInfoIO().readAppIcon(iconPath);
+        }
+        return icon;
     }
 
     public String getLabel() {
@@ -190,5 +192,13 @@ public class DesktopAppInfo implements Serializable{
 
     public void setIconPath(String iconPath) {
         this.iconPath = iconPath;
+    }
+
+    public Bitmap getIcon() {
+        return icon;
+    }
+
+    public void setIcon(Bitmap icon) {
+        this.icon = icon;
     }
 }

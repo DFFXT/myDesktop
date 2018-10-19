@@ -1,9 +1,9 @@
-package com.example.config.appdata;
+package com.example.config.appData;
 
 import android.support.annotation.StringDef;
 
-import com.example.config.appdata.configs.CommonConfig;
-import com.example.config.appdata.configs.ThemeConfig;
+import com.example.config.appData.configs.CommonConfig;
+import com.example.config.appData.configs.ThemeConfig;
 
 /**
  * 数据管理

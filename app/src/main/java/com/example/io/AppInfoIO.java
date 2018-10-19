@@ -124,7 +124,9 @@ public class AppInfoIO{
         }
         String path=file.getAbsolutePath()+File.separator+pkgName+".png";
         Bitmap bitmap1=Bitmap.createScaledBitmap(bitmap,136,136,false);
-        return saveBitmap(new File(path),bitmap1);
+        String abPath=saveBitmap(new File(path),bitmap1);
+        bitmap1.recycle();
+        return abPath;
     }
 
     /**

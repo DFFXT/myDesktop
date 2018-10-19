@@ -13,8 +13,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.config.ClickData;
-import com.example.config.appdata.AppConfigManager;
-import com.example.config.appdata.configs.ThemeConfig;
+import com.example.config.appData.AppConfigManager;
+import com.example.config.appData.configs.ThemeConfig;
 import com.example.interface_.MyActivity;
 import com.example.io.ClickDataIO;
 import com.popwindow.w.WindowConfirm;

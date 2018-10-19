@@ -1,9 +1,9 @@
-package com.example.config.appdata.configs;
+package com.example.config.appData.configs;
 
 import android.support.annotation.IntDef;
 
-import com.example.config.appdata.AppConfigManager;
-import com.example.config.appdata.tools.SPTools;
+import com.example.config.appData.AppConfigManager;
+import com.example.config.appData.tools.SPTools;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

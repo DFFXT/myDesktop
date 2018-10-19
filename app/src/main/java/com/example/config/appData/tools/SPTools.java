@@ -1,11 +1,14 @@
-package com.example.config.appdata.tools;
+package com.example.config.appData.tools;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.example.config.MainApplication;
-import com.example.config.appdata.AppConfigManager;
+import com.example.config.appData.AppConfigManager;
 
+/**
+ * SharedPreference 工具
+ */
 public class SPTools {
     public static void saveIntRecord(@AppConfigManager.DataPoolName String name, String key, int value){
         SharedPreferences sp= MainApplication.getContext().getSharedPreferences(name, Context.MODE_PRIVATE);

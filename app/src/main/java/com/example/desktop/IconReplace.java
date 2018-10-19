@@ -2,46 +2,39 @@ package com.example.desktop;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.URLUtil;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.config.GridViewDrawableAdapter;
 import com.example.config.PublicData;
-import com.example.config.appdata.AppConfigManager;
-import com.example.config.appdata.configs.ThemeConfig;
+import com.example.config.appData.AppConfigManager;
+import com.example.config.appData.configs.ThemeConfig;
 import com.example.dataType.AppList;
 import com.example.dataType.DesktopAppInfo;
 import com.example.interface_.MyActivity;
 import com.example.util.CommonsUtil;
 
-import java.io.File;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -62,8 +55,8 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
     private ImageView iconShow;
     //**适配器
     private GridViewDrawableAdapter replacedListAdapter;
-    //**需要替换的APP包名
-    private String pkgName;
+    //**需要替换的APP名
+    private String name,pkgName;
     //**顶部的3个按钮
     private TextView but1,but2,but3;
 
@@ -78,11 +71,18 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
     public void onCreate(Bundle b){
         super.onCreate(b);
         setContentView(R.layout.app_icon_replace);
+        name=getIntent().getStringExtra("name");
         pkgName=getIntent().getStringExtra("pkgName");
-        if (pkgName==null) finish();
+        if (name==null) finish();
         findId();
         setTheme();
         run();
+    }
+    public static void actionStart(Activity activity, String name, String pkgName,int code){
+        Intent intent=new Intent(activity,IconReplace.class);
+        intent.putExtra("name",name);
+        intent.putExtra("pkgName",pkgName);
+        activity.startActivityForResult(intent,code);
     }
 
     /**
@@ -193,8 +193,11 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
             return;
         }
         AppList appList=PublicData.getAppList();
-        appList.replaceIcon(pkgName,((BitmapDrawable)selectedDrawable).getBitmap());
-
+        appList.replaceIcon(name,CommonsUtil.drawableToBitmap(selectedDrawable));
+        DesktopAppInfo app=appList.getApp(name);
+        if(app!=null){
+            app.setIcon(null);
+        }
         setResult(RESULT_OK);
         finish();
     }
@@ -225,7 +228,7 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
                 v.setBackgroundResource(R.drawable.view_only_bottom_borde_1px);
 
                 if(selectedDrawable==null){
-                    selectedDrawable=getAppIcon(pkgName);
+                    selectedDrawable=getAppIcon(pkgName,name);
                 }
                 if(selectedDrawable!=null) {
                     ((ImageView)iconShowParent.findViewById(R.id.iconShow)).setImageDrawable(selectedDrawable);
@@ -253,38 +256,6 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
            Uri uri=intent.getData();
             if(uri==null)return;
             replaceIcon(uri);
-            /*String path = null;
-            if(ContentResolver.SCHEME_FILE.equals(uri.getScheme())){
-                path=uri.getPath();
-            }else if(ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())){
-                if("com.android.providers.media.documents".equals(uri.getAuthority())){
-                    String res[]=DocumentsContract.getDocumentId(uri).split(":");
-                    if("image".equals(res[0])){
-                        Cursor cursor=getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                new String[]{"_data"},"_id=?",new String[]{res[1]},null);
-                        if(cursor!=null&&cursor.moveToFirst()){
-                            path=cursor.getString(0);
-                        }
-                        if (cursor != null) {
-                            cursor.close();
-                        }
-                    }
-                }else {
-                    Cursor cursor=getContentResolver().query(uri,new String[]{"_data"},null,null,null);
-                    if(cursor==null)return;
-                    if (cursor.moveToFirst()){
-                        do {
-                            path=cursor.getString(0);
-                        }while (cursor.moveToNext());
-
-                    }
-                    cursor.close();
-                }
-            }
-            if(path==null){
-                replaceIcon(uri);
-            }else
-                replaceIcon(path);*/
        }
     }
 
@@ -293,10 +264,20 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
      * @param uri uri
      */
     private void replaceIcon(Uri uri){
-        Glide.with(this).load(uri).into(iconShow);
+        Glide.with(this).load(uri).addListener(new RequestListener<Drawable>() {
+            @Override
+            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                return false;
+            }
+            @Override
+            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                selectedDrawable=resource;
+                return false;
+            }
+        }).into(iconShow);
         iconShowParent.setVisibility(View.VISIBLE);
         iconShowParent.bringToFront();
-        selectedDrawable=iconShow.getDrawable();
+
     }
     private void requestPermission(){
         int code= ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -323,11 +304,11 @@ public class IconReplace extends MyActivity implements View.OnClickListener{
      * @param pkgName pkgName
      * @return drawable
      */
-    private Drawable getAppIcon(String pkgName){
+    private Drawable getAppIcon(String pkgName,String name){
         AppList appList=PublicData.getAppList();
-        DesktopAppInfo app=appList.getApp(pkgName);
-        if(app.isHasOtherIcon()){
-            return new BitmapDrawable(getResources(),app.getOtherIcon());
+        DesktopAppInfo app=appList.getApp(name);
+        if (app != null && app.isHasOtherIcon()) {
+            return new BitmapDrawable(getResources(), app.getOtherIcon());
         }
         try {
             return pm.getApplicationIcon(pkgName);

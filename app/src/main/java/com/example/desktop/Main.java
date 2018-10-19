@@ -38,10 +38,9 @@ import android.widget.TextView;
 import com.example.background.BackgroundService;
 import com.example.config.GridViewAdapter;
 import com.example.config.PublicData;
-import com.example.util.ShortCut;
 import com.example.config.TouchDirection;
-import com.example.config.appdata.AppConfigManager;
-import com.example.config.appdata.configs.ThemeConfig;
+import com.example.config.appData.AppConfigManager;
+import com.example.config.appData.configs.ThemeConfig;
 import com.example.dataType.AppList;
 import com.example.dataType.AppWidget;
 import com.example.dataType.DesktopAppInfo;
@@ -49,6 +48,8 @@ import com.example.interface_.DesktopInterface;
 import com.example.interface_.MyActivity;
 import com.example.io.AppInfoIO;
 import com.example.io.ClickDataIO;
+import com.example.util.CommonsUtil;
+import com.example.util.ShortCut;
 import com.example.view.AppWidgetParent;
 import com.example.view.MyParent;
 import com.popwindow.w.BoxMenu;
@@ -109,13 +110,15 @@ public class Main extends MyActivity implements View.OnClickListener{
 				BackgroundService.MyIBinder service= (BackgroundService.MyIBinder) s;
 				service.setDesktopInterface(new DesktopInterface() {
 					@Override
-					public void addApp(String pkgName,int page) {
+					public void addApp(String name,int page) {
 						//**安装一个应用时被调用
 						appList= PublicData.getAppList();
 						if(appList==null)return;
-						DesktopAppInfo app=appList.getApp(pkgName);
-						View v=createAppView(app,app.getPage());
-						wList.get(page).addView(v);
+						DesktopAppInfo app=appList.getApp(name);
+						if(app!=null){
+							View v=createAppView(app,app.getPage());
+							wList.get(page).addView(v);
+						}
 					}
 					@Override
 					public void removeApp(String pkgName,int page) {
@@ -424,10 +427,9 @@ public class Main extends MyActivity implements View.OnClickListener{
 			itemH=getResources().getDimensionPixelSize(R.dimen.appItemHeight);
 		}
 
-
-		AppInfoIO appInfoIO=new AppInfoIO();
 		appList=PublicData.getAppList();
 		if(appList==null){
+			AppInfoIO appInfoIO=new AppInfoIO();
 			initAppList();
 			appInfoIO.saveAppInfo(appList);
 		}
@@ -440,7 +442,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 			wList.clear();
 			wDList.clear();
 		}
-		for(int page=0;page<=appList.getMaxPage();page++){
+		for(int page=0;page<appList.getMaxPage();page++){
 			ArrayList<DesktopAppInfo> list= appList.getPage(page);
 			int visible=View.GONE;
 			if(page==appList.getPage()){
@@ -626,7 +628,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 	 */
 	private void deleteWindow(final int deletePage){
 		final int showPage;
-		if(deletePage==appList.getMaxPage()){
+		if(deletePage==appList.getMaxPage()-1){
 			showPage=deletePage-1;
 			appList.setPage(showPage);
 			if(showPage<0) return;
@@ -690,7 +692,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 					}
 				}
 				else if(app.isHasOtherIcon()){
-					img.setImageBitmap(app.getOtherIcon());
+					img.setImageBitmap(CommonsUtil.roundBitmap(app.getOtherIcon(),18));
 				}else if(app.getIntent()!=null){
 					String suffix=app.getPkgName();
 					int pos=suffix.lastIndexOf('.');
@@ -1030,7 +1032,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 			appList.removeApp(touchObj.info.getPkgName());//**从存储列表中移除app
 			//left=-20;//**app在新页面的新位置
 			int nextPage=appList.getPage()-1;
-			if(nextPage<0) nextPage=appList.getMaxPage();
+			if(nextPage<0) nextPage=appList.getMaxPage()-1;
 			endSwitchAnimator(appList.getPage(),nextPage,0,width);//**换页面
 			wList.get(appList.getPage()).addView(touchObj.downView);//**在新页面显示App
 			touchObj.info.setPage(appList.getPage());//**重新设置app所属页面
@@ -1048,7 +1050,7 @@ public class Main extends MyActivity implements View.OnClickListener{
 			wList.get(appList.getPage()).removeView(touchObj.downView);
 			//left=width-itemW+20;
 			int nextPage=appList.getPage()+1;
-			if(nextPage>appList.getMaxPage()) nextPage=0;
+			if(nextPage>=appList.getMaxPage()) nextPage=0;
 			endSwitchAnimator(appList.getPage(),nextPage,0,-width);
 			touchObj.info.setPage(appList.getPage());
 			wList.get(appList.getPage()).addView(touchObj.downView);
@@ -1182,10 +1184,8 @@ public class Main extends MyActivity implements View.OnClickListener{
 			}break;
 			case R.id.item4:{//**改应用图标
 				if(touchObj.objType!=TouchObj.APP||touchObj.info==null)return;
-				Intent intent=new Intent(Main.this,IconReplace.class);
-				intent.putExtra("pkgName",touchObj.info.getPkgName());
+				IconReplace.actionStart(this,touchObj.info.getName(),touchObj.info.getPkgName(),4);
 				hiddenLongClickItem();
-				startActivityForResult(intent,4);
 			}break;
 
 			case R.id.item5:{//**放大

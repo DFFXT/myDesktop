@@ -17,8 +17,8 @@ import android.widget.ListView;
 import com.example.config.AppListAdapter;
 import com.example.config.PublicData;
 import com.example.util.ShortCut;
-import com.example.config.appdata.AppConfigManager;
-import com.example.config.appdata.configs.ThemeConfig;
+import com.example.config.appData.AppConfigManager;
+import com.example.config.appData.configs.ThemeConfig;
 import com.example.dataType.AppList;
 import com.example.dataType.DesktopAppInfo;
 import com.example.interface_.MyActivity;
@@ -248,7 +248,7 @@ public class AppSelectAdd extends MyActivity {
         new Thread(() -> {
             for(int i=0;i<list.size();i++){
                 boolean exist=false;
-                for(int p=0;p<=appList.getMaxPage();p++){
+                for(int p=0;p<appList.getMaxPage();p++){
                     ArrayList<DesktopAppInfo> pList=appList.getPage(p);
                     for(int j=0;j<pList.size();j++){
                         if(list.get(i).activityInfo.packageName.equals(pList.get(j).getPkgName())){

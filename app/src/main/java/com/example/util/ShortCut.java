@@ -44,7 +44,7 @@ public class ShortCut {
      * @param page page
      */
     public static boolean setPosition(AppList appList, DesktopAppInfo newApp, int page){
-        if(page>appList.getMaxPage()){//**页面参数不对，强制写入坐标
+        if(page>=appList.getMaxPage()){//**页面参数不对，强制写入坐标
             newApp.setY(400);
             newApp.setX(50);
             newApp.setWeight(100);

@@ -13,7 +13,8 @@ import android.util.Log;
 public class AppChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i("rec",intent.getAction()+" ");
+        Log.i("rec",intent.getBooleanExtra(Intent.EXTRA_REPLACING,false)+"---"+intent.getAction());
+
         intent.setClass(context, BackgroundService.class);
         context.startService(intent);
     }

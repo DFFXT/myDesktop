@@ -16,10 +16,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.config.PublicData;
-import com.example.util.ShortCut;
 import com.example.dataType.AppList;
 import com.example.dataType.DesktopAppInfo;
 import com.example.interface_.DesktopInterface;
+import com.example.util.ShortCut;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -27,9 +27,7 @@ import java.util.List;
 public class BackgroundService extends Service{
 	private DesktopInterface desktopInterface;
 	public class MyIBinder extends Binder {
-		private BackgroundService service;
 		MyIBinder(BackgroundService service){
-			this.service=service;
 		}
 
 		/**
@@ -46,8 +44,8 @@ public class BackgroundService extends Service{
 	}
 	public int onStartCommand(Intent intent,int flag,int startId){
 		String action=intent.getAction();
-		Log.i("server",action+"");
 		if(action==null) return START_NOT_STICKY;
+		Log.i("log",intent+"");
 		//**安装了一个应用
 		switch (action) {
 			case Intent.ACTION_PACKAGE_ADDED:
@@ -55,7 +53,8 @@ public class BackgroundService extends Service{
 				break;
 			//**卸载了一个应用
 			case Intent.ACTION_PACKAGE_REMOVED:
-				removeApp(intent);
+				if(!intent.getBooleanExtra(Intent.EXTRA_REPLACING,false))
+					removeApp(intent);
 				break;
 			//**对窗口进行了管理
 			case "windowManage":
@@ -86,6 +85,8 @@ public class BackgroundService extends Service{
 			String pkgName=intent.getData().getSchemeSpecificPart();
 			String name=getAppStartActivity(pkgName);
 			AppList appList=PublicData.getAppList();
+			if(appList.getApp(name)!=null)return;
+
 			PackageManager pm=getPackageManager();
 			try {
 				ApplicationInfo info=pm.getApplicationInfo(pkgName,0);
@@ -106,7 +107,7 @@ public class BackgroundService extends Service{
 				appList.addApp(app);
 				PublicData.saveData();
 				if(desktopInterface!=null)
-					desktopInterface.addApp(pkgName,page);
+					desktopInterface.addApp(name,page);
 			} catch (PackageManager.NameNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -120,10 +121,11 @@ public class BackgroundService extends Service{
 		if(intent.getData()!=null){
 			AppList appList= PublicData.getAppList();
 			String pkgName=intent.getData().getSchemeSpecificPart();
-			DesktopAppInfo app=appList.getApp(pkgName);
+			String name=getAppStartActivity(pkgName);
+			DesktopAppInfo app=appList.getApp(name);
 			if(app==null) return ;
 			int page=app.getPage();
-			appList.removeApp(pkgName);
+			appList.removeApp(name);
 			PublicData.saveData();
 			if(desktopInterface!=null)
 				desktopInterface.removeApp(pkgName,page);
