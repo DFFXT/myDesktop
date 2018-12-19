@@ -1,6 +1,7 @@
 package com.example.dataType;
 
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -140,12 +141,12 @@ public class AppList implements Serializable {
      * @return page
      */
     @Nullable
-    public DesktopAppInfo getApp(String name){
+    public DesktopAppInfo getApp(@NonNull String name){
         if(TextUtils.isEmpty(name))return null;
         for(int i=0;i<pageAppList.size();i++){
             ArrayList<DesktopAppInfo> list=pageAppList.get(i);
             for(int index=0;index<list.size();index++){
-                if(list.get(index).getName().equals(name)) return list.get(index);
+                if(name.equals(list.get(index).getName())) return list.get(index);
             }
         }
         for(int i=0;i<shortCutList.size();i++){
